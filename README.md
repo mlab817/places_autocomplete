@@ -19,7 +19,7 @@ overlay mode, and a controller-based API built on the Google Places API (New).
 
 ```yaml
 dependencies:
-  places_autocomplete: ^0.0.1
+  places_autocomplete: ^0.0.2
 ```
 
 ## Requirements
