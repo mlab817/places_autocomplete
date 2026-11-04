@@ -149,12 +149,17 @@ mixin PlacesAutocompleteMixin<T extends StatefulWidget> on State<T> {
           link: layerLink,
           showWhenUnlinked: false,
           offset: overlayOffset,
-          child: Material(
-            elevation: 4,
-            borderRadius: BorderRadius.circular(8),
-            child: ConstrainedBox(
-              constraints: BoxConstraints(maxHeight: maxSuggestionsHeight),
-              child: buildSuggestionsList(state),
+          // Treat taps on the suggestions as taps inside the text field, so
+          // pointer-down doesn't unfocus it (mouse, desktop, web) and tear
+          // down the overlay before the tap completes.
+          child: TextFieldTapRegion(
+            child: Material(
+              elevation: 4,
+              borderRadius: BorderRadius.circular(8),
+              child: ConstrainedBox(
+                constraints: BoxConstraints(maxHeight: maxSuggestionsHeight),
+                child: buildSuggestionsList(state),
+              ),
             ),
           ),
         ),
@@ -218,8 +223,14 @@ mixin PlacesAutocompleteMixin<T extends StatefulWidget> on State<T> {
       itemCount: predictions.length,
       itemBuilder: (context, index) {
         final prediction = predictions[index];
-        return itemBuilder?.call(context, prediction) ??
-            _defaultItem(prediction);
+        final custom = itemBuilder?.call(context, prediction);
+        if (custom == null) return _defaultItem(prediction);
+        // Custom items have no access to handleSelected, so make the whole
+        // row selectable.
+        return InkWell(
+          onTap: () => handleSelected(prediction),
+          child: custom,
+        );
       },
     );
   }
@@ -248,10 +259,12 @@ mixin PlacesAutocompleteMixin<T extends StatefulWidget> on State<T> {
     final state = controller.state;
     if (state is PlacesStateIdle) return const SizedBox.shrink();
 
-    return Material(
-      child: ConstrainedBox(
-        constraints: BoxConstraints(maxHeight: maxSuggestionsHeight),
-        child: buildSuggestionsList(state),
+    return TextFieldTapRegion(
+      child: Material(
+        child: ConstrainedBox(
+          constraints: BoxConstraints(maxHeight: maxSuggestionsHeight),
+          child: buildSuggestionsList(state),
+        ),
       ),
     );
   }
