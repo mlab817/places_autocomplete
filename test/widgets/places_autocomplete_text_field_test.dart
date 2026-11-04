@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:http/http.dart' as http;
@@ -266,6 +267,71 @@ void main() {
     });
 
     group('selection', () {
+      testWidgets(
+        'calls onSelected when overlay suggestion is clicked with a mouse',
+        (tester) async {
+          final client = MockClient((request) async {
+            return http.Response(jsonEncode(validSuggestionsResponse), 200);
+          });
+
+          final controller = makeController(client);
+          PlacePrediction? selectedPrediction;
+
+          await tester.pumpWidget(
+            buildWidget(
+              controller: controller,
+              onSelected: (prediction) => selectedPrediction = prediction,
+            ),
+          );
+
+          await tester.enterText(find.byType(TextField), 'Amoeba');
+          await tester.pump();
+
+          // A mouse pointer-down outside the field's tap region unfocuses it,
+          // which must not tear down the overlay before the tap lands.
+          final gesture = await tester.startGesture(
+            tester.getCenter(find.text('Amoeba Music')),
+            kind: PointerDeviceKind.mouse,
+          );
+          await tester.pump(const Duration(milliseconds: 100));
+          await gesture.up();
+          await tester.pump();
+
+          expect(selectedPrediction, isNotNull);
+          expect(selectedPrediction!.placeId, 'ChIJ5YQQf1GHhYARPKG7WLIaOko');
+          controller.dispose();
+        },
+      );
+
+      testWidgets('calls onSelected when a custom itemBuilder row is tapped', (
+        tester,
+      ) async {
+        final client = MockClient((request) async {
+          return http.Response(jsonEncode(validSuggestionsResponse), 200);
+        });
+
+        final controller = makeController(client);
+        PlacePrediction? selectedPrediction;
+
+        await tester.pumpWidget(
+          buildWidget(
+            controller: controller,
+            onSelected: (prediction) => selectedPrediction = prediction,
+            itemBuilder: (context, prediction) =>
+                ListTile(title: Text('Custom: ${prediction.mainText}')),
+          ),
+        );
+
+        await tester.enterText(find.byType(TextField), 'Amoeba');
+        await tester.pump();
+
+        await tester.tap(find.text('Custom: Amoeba Music'));
+        await tester.pump();
+
+        expect(selectedPrediction, isNotNull);
+        controller.dispose();
+      });
+
       testWidgets('calls onSelected when suggestion is tapped', (tester) async {
         final client = MockClient((request) async {
           return http.Response(jsonEncode(validSuggestionsResponse), 200);
