@@ -790,6 +790,25 @@ what you'd like to change.
 4. Push to the branch `git push origin feature/my-feature`
 5. Open a Pull Request
 
+CI runs formatting, analysis, tests, and a publish dry run on every pull
+request.
+
+---
+
+## Releasing
+
+Releases are published to pub.dev automatically when a version tag is pushed.
+
+1. Bump `version` in `pubspec.yaml` and add a matching entry to `CHANGELOG.md`
+2. Merge to `main`
+3. Tag and push: `git tag v0.0.2 && git push origin v0.0.2`
+
+The tag must match the `pubspec.yaml` version, or the publish job fails.
+
+One-time setup: on the package's pub.dev **Admin** page, enable
+**Automated publishing** from GitHub Actions with repository
+`mlab817/places_autocomplete` and tag pattern `v{{version}}`.
+
 ---
 
 ## License
