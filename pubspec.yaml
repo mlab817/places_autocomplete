@@ -1,6 +1,6 @@
 name: places_autocomplete
 description: "Google Places Autocomplete for Flutter — overlay/inline modes, debouncing, caching, and place details. Built on the Google Places API (New)."
-version: 0.0.1
+version: 0.0.2
 repository: https://github.com/mlab817/places_autocomplete
 homepage: https://github.com/mlab817/places_autocomplete
 issue_tracker: https://github.com/mlab817/places_autocomplete/issues

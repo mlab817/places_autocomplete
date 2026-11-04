@@ -1,3 +1,8 @@
+## 0.0.2
+
+* Fix `onSelected` not firing when a suggestion is clicked with a mouse (desktop, web) and the overlay closed before the tap completed ([#1](https://github.com/mlab817/places_autocomplete/issues/1)).
+* Fix rows from a custom `itemBuilder` not being selectable ([#1](https://github.com/mlab817/places_autocomplete/issues/1)).
+
 ## 0.0.1
 
 * Initial release.
